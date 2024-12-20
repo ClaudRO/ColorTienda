@@ -1,0 +1,65 @@
+*****
+MODELO TBK HECHO
+FALTA VISTA PARA GUARDAR DATOS DESDE TBK EN EL MODELO
+
+iniciar_pago(
+        LINEA 216
+)
+
+algunos botones no funcionan desde carrito
+*****
+
+Las compras se realizan en sesion al parecer
+BD solo para items de tienda
+Faltan ajustar bordes y margenes
+Titulo 'centro color' podria servir como boton home
+En pagina Carrito deberia poderse editar
+
+
+
+ASPECTO TECNICO
+
+Se tienen que guardar los tokens
+Falta columna cuotas
+tabla compras state = boolean para saber estado de la compra (correcto o no)
+response_code en TBK ={ 
+        0: Transacción aprobada.
+        -1: Error genérico.
+        -2: Error en parámetros.
+        -6: Tiempo de espera excedido.
+        }
+Se necesita guardar ip_address
+Se necesita guardar user_agent
+
+Se necesita pasar los datos del formulario carrito al backend
+uso de ajax
+
+
+CONFIGURAR TBK PARA PRODUCCION 
+
+***PARA LOCAL USO DE MYSQL/Workbench
+Revisar migraciones
+
+tabla TBK (
+        {'vci': 'TSY', 'amount': 16990, 'status': 'AUTHORIZED', 'buy_order': '27', 'session_id': '42a57e69-38b9-448c-b8ec-a7',
+         'card_detail': {'card_number': '6623'}, 'accounting_date': '1212', 'transaction_date': '2024-12-12T17:05:38.082Z', 
+         'authorization_code': '1213', 'payment_type_code': 'SI', 'response_code': 0, 'installments_amount': 5664, 
+        'installments_number': 3}
+)
+
+
+
+CODIGO
+tabla compras (registro que se hace en la compra) 
+tabla productos_carrito (registro va al pagar)
+tabla transbank (id, token, fecha, tipo_pago, etc)
+
+
+
+
+
+http://127.0.0.1:8000/resultado_pago/?success=false # reachazado 
+http://127.0.0.1:8000/confirmar_pago/?TBK_TOKEN=01abbee02173a7b5923c8c09d6f102f3257234654411086d1f22edccc2f7f70c&TBK_ORDEN_COMPRA=3104a17c-ccd7-4990-a9b5-85&TBK_ID_SESION=session123
+
+[12/Dec/2024 14:05:38] "POST /iniciar_pago/?total=16990 HTTP/1.1" 200 169
+{'vci': 'TSY', 'amount': 16990, 'status': 'AUTHORIZED', 'buy_order': '27', 'session_id': '42a57e69-38b9-448c-b8ec-a7', 'card_detail': {'card_number': '6623'}, 'accounting_date': '1212', 'transaction_date': '2024-12-12T17:05:38.082Z', 'authorization_code': '1213', 'payment_type_code': 'SI', 'response_code': 0, 'installments_amount': 5664, 'installments_number': 3}

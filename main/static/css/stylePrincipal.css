@@ -1,0 +1,11 @@
+   /* Centrar el formulario en la pantalla */
+   .form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+/* Estilo adicional para los inputs */
+.form-control {
+    margin-bottom: 15px;
+}

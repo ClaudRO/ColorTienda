@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestros logros</title>
+    {% load static %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+
+<body>
+    <header class="py-3" style="background-color: #A7D3FA;">
+        <div class="container d-flex justify-content-between align-items-center" style="color: white;">
+            <div>
+                
+                <a href="#" class="text-light mx-1"><i class="bi bi-facebook"></i></a>
+                <a href="https://www.instagram.com/centrocolorsantodomingo?igsh=MW1xNGtsajczaHVzbQ%3D%3D"  target="_blank"  class="text-light mx-1"><i class="bi bi-instagram"></i></a>
+                
+            </div>
+            <div class="text-center flex-grow-1">
+                <h5 class="m-0">Centro Color</h5>
+            </div>
+
+        </div>
+    </header>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB2EC;">
+        <div class="container justify-content-center">
+            <ul class="navbar-nav">
+                <!-- Botón de Inicio -->
+                <li class="nav-item mx-3">
+                    <a class="nav-link" href="{% url 'index' %}">Inicio</a>
+                </li>
+                <!-- Botón desplegable de Productos -->
+                <li class="nav-item dropdown mx-3">
+                    <a class="nav-link dropdown-toggle" href="#" id="productosDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        Productos
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="productosDropdown">
+                        <li><a class="dropdown-item" href="{% url 'product_list' %}">Pinturas</a></li>
+                        <li><a class="dropdown-item" href="#">Producto 2</a></li>
+                        <li><a class="dropdown-item" href="#">Producto 3</a></li>
+                    </ul>
+                </li>
+             
+                <li class="nav-item mx-3">
+                    <a class="nav-link" href="{% url 'nosotros' %}">Nosotros</a>
+                </li>
+                <li class="nav-item mx-3">
+                    <a class="nav-link" href="{% url 'contacto' %}">Contacto</a>
+                </li>
+                <li class="nav-item mx-3">
+                    <a class="nav-link" href="{% url 'seguimiento' %}">Seguimiento pedido</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <style>
+        /* Centrar la sección en la pantalla */
+        .content-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Alinear texto verticalmente */
+        .text-container {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+    </head>
+
+    <body>
+
+        <div class="content-container">
+            <div class="row col-md-7">
+                <h2 class="text-center w-100 mb-5">Nosotros</h2>
+
+                <!-- Sección de Texto -->
+                <div class="col-md-6 text-container">
+                    <p>
+                        En Centro color, nos apasiona ayudarte a transformar tus espacios. Somos una ferretería con una
+                        amplia trayectoria, especializada en pinturas de la mejor calidad para proyectos de hogar,
+                        comercio e industria. Contamos con una extensa variedad de productos, colores y acabados para
+                        asegurar que cada cliente encuentre la solución perfecta para sus necesidades.
+                        Nuestro equipo está comprometido en ofrecer un servicio personalizado, asesorándote en cada paso
+                        del camino, ya sea que busques la pintura ideal para renovar una habitación, proteger
+                        superficies en exteriores, o lograr un acabado especial. También disponemos de herramientas y
+                        materiales complementarios, para que puedas realizar tus proyectos de principio a fin con
+                        facilidad.
+                        En Centro color creemos que cada proyecto es una oportunidad para crear un espacio único. Nos
+                        enorgullece ser parte de cada transformación, ofreciendo productos duraderos, marcas de
+                        confianza y el asesoramiento experto que necesitas. ¡Ven a visitarnos y descubre cómo podemos
+                        ayudarte a dar vida a tus ideas!.
+                    </p>
+                </div>
+
+                <!-- Sección de Imagen -->
+                <div class="col-md-6 text-center">
+                    <img src="{% static  'app/media/img/fotoNosotros.png' %}" alt="Nosotros" class="img-fluid">
+                </div>
+            </div>
+        </div>
+        <!-- Footer -->
+        <footer class="text-white pt-4" style=" background-color: #262C3D;">
+            <div class="container">
+                <div class="row">
+                    <!-- Enlaces útiles -->
+                    <div class="col-md-6 mb-3">
+                        <h5>Enlaces útiles</h5>
+                        <ul class="list-unstyled">
+                            <li><a href="#" class="text-white">Acerca de Nosotros</a></li>
+                            <li><a href="#" class="text-white">Tienda</a></li>
+                            <li><a href="#" class="text-white">Soporte Técnico</a></li>
+                            <li><a href="#" class="text-white">Política de Devoluciones</a></li>
+                            <li><a href="#" class="text-white">Términos y Condiciones</a></li>
+                            <li><a href="#" class="text-white">Políticas de Privacidad</a></li>
+                        </ul>
+                    </div>
+                    <!-- Sección de contacto -->
+                    <div class="col-md-6 mb-3">
+                        <h5>Contáctanos</h5>
+                        <p>Vía nuestras redes sociales:</p>
+                        <div>
+                            <a href="#" class="text-white mr-3 mx-2"><i class="bi bi-instagram"></i></a>
+                            <a href="#" class="text-white mr-3 mx-2"><i class="bi bi-facebook"></i></a>
+                            <a href="#" class="text-white mr-3 mx-2"><i class="bi bi-tiktok"></i></a>
+                            <a href="#" class="text-white"><i class="bi bi-whatsapp"></i></a>
+                        </div>
+                        <p class="mt-3">📍Los Ciruelos 100, Santo Domingo, C.C. Piedras del Sol, Local 33.Lunes a
+                            viernes de 8:30 a 18:30 horario Continuado.Sábado de 9:00 a 14:00.</p>
+                    </div>
+                </div>
+                <!-- Extensión del footer -->
+                <div class="text-center py-3 mt-4 border-top border-secondary">
+                    <div class="d-flex justify-content-between">
+                        <span>&copy; 2024</span>
+                        <span>Centro Color</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
+    </body>
+
+</html>
