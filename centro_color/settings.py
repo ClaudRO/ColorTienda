@@ -86,7 +86,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tbk_ecocolor',
-        'USER': 'root',
+        'USER': 'usuario_django',
         'PASSWORD': 'Duoc123!',
         'HOST': 'localhost',  # o dirección IP del servidor
         'PORT': '3306',
