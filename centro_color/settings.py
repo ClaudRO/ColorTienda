@@ -13,20 +13,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 from django.urls import reverse_lazy
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-px0-$hc8&=silx3y^dx2!)&18d0d_v&%!l3_okq-faw7ac20ha'
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['3.96.214.144']
 
 # settings.py
 TRANSBANK_COMMERCE_CODE = "597055555532"
@@ -73,20 +66,17 @@ TEMPLATES = [
         
     },
 ]
-STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'main/static']  # Indica dónde buscar archivos estáticos
 
 WSGI_APPLICATION = 'centro_color.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','3.96.214.144','centrocolor.sytes.net']
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tbk_ecocolor',
-        'USER': 'usuario_django',
+        'USER': 'usuario_django', #root cuando se prueba en local
         'PASSWORD': 'Duoc123!',
         'HOST': 'localhost',  # o dirección IP del servidor
         'PORT': '3306',
