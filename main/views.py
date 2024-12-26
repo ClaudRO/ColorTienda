@@ -2,8 +2,9 @@ import json
 import ast
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
-from .models import Compras, Product, produtosCompras, transbank
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
+from .models import Compras, Product, produtosCompras, transbank
 from .forms import ContactForm
 from django.core.mail import send_mail, BadHeaderError
 from django.shortcuts import render, get_object_or_404, redirect
@@ -13,6 +14,7 @@ from uuid import uuid4  # Para generar IDs únicos de compra
 from datetime import datetime
 from django.db import models
 from transbank.webpay.webpay_plus.transaction import Transaction
+
 
 
 
@@ -51,6 +53,20 @@ def seguimiento(request):
 def exit(request):
     logout(request)
     return redirect('login')
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.")
+            return redirect('login')
+        else:
+            messages.error(request, "Por favor corrige los errores del formulario.")
+    else:
+        form = UserCreationForm()
+    
+    return render(request, 'registration/register.html', {'form': form})
 
 def contact_view(request):
     if request.method == 'POST':
