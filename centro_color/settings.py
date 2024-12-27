@@ -68,7 +68,7 @@ STATICFILES_DIRS = [BASE_DIR / 'main/static']  # Indica dónde buscar archivos e
 
 WSGI_APPLICATION = 'centro_color.wsgi.application'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost','3.96.214.144','centrocolor.sytes.net']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','centrocolor.sytes.net']
 
 DATABASES = {
     'default': {
@@ -139,8 +139,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  # Utilizamos Gmail como servidor SMTP
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'rodrigorios007@gmail.com'  # Tu correo de Gmail o el que uses para enviar los correos
-EMAIL_HOST_PASSWORD = 'upri tblp vdgx xeum'  # Tu contraseña o la contraseña de aplicación
+EMAIL_HOST_USER = 'claudior.ortega98@gmail.com'  # Tu correo de Gmail o el que uses para enviar los correos
+EMAIL_HOST_PASSWORD = 'vmkr iodc xnmp aynj'  # Tu contraseña o la contraseña de aplicación
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
 
 # Configuración para sesiones
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Cerrar sesión al cerrar el navegador

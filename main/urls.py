@@ -22,7 +22,12 @@ urlpatterns = [
     path('iniciar_pago/', views.iniciar_pago, name='iniciar_pago'),
     path('confirmar_pago/', views.confirmar_pago, name='confirmar_pago'),
     path('resultado_pago/', views.resultado_pago, name='resultado_pago'),
-    path('tipo_pagos/', views.tipo_pagos, name='tipo_pagos')
+    path('tipo_pagos/', views.tipo_pagos, name='tipo_pagos'),
+ 
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     
-    ]
+]
 
