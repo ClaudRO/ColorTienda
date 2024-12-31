@@ -16,7 +16,7 @@ from django.contrib.staticfiles.handlers import StaticFilesHandler
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'centro_color.settings')
 
 # Añadir el path del proyecto si es necesario
-path = os.path.expanduser('~/ccolor-tienda')
+path = os.path.expanduser('/home/ubuntu/ColorTienda')
 if path not in sys.path:
     sys.path.insert(0, path)
 

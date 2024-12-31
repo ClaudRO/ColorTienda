@@ -68,13 +68,13 @@ STATICFILES_DIRS = [BASE_DIR / 'main/static']  # Indica dónde buscar archivos e
 
 WSGI_APPLICATION = 'centro_color.wsgi.application'
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost','centrocolor.sytes.net']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost','centrocolor.cl','98.82.174.238']
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'tbk_ecocolor',
-        'USER': 'root', #root cuando se prueba en local
+        'USER': 'usuario_django', #root cuando se prueba en local
         'PASSWORD': 'Duoc123!',
         'HOST': 'localhost',  # o dirección IP del servidor
         'PORT': '3306',

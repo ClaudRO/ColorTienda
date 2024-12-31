@@ -1,12 +1,24 @@
-<!-- templates/components/navbar.html -->
 <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #FFB2EC;">
+    <style>
+        .nav-link {
+            transition: color 0.3s ease, background-color 0.3s ease;
+            color: #0f1112;
+            font-weight: 500; /* Letras más gruesas */
+            letter-spacing: 1px; /* Más separación entre letras */
+        }
+        .nav-link:hover {
+            color: #fff;
+            background-color: #e85ebc;
+        }
+        .dropdown-menu {
+            border-radius: 8px;
+        }
+    </style>
     <div class="container justify-content-center">
         <ul class="navbar-nav">
-            <!-- Botón de Inicio -->
             <li class="nav-item mx-3">
                 <a class="nav-link" href="{% url 'index' %}">Inicio</a>
             </li>
-            <!-- Botón desplegable de Productos -->
             <li class="nav-item dropdown mx-3">
                 <a class="nav-link dropdown-toggle" href="#" id="productosDropdown" role="button"
                     data-bs-toggle="dropdown" aria-expanded="false">
@@ -16,7 +28,6 @@
                     <li><a class="dropdown-item" href="{% url 'product_list' %}">Pinturas</a></li>
                 </ul>
             </li>
-            <!-- Botones de Logros, Nosotros y Contacto -->
             <li class="nav-item mx-3">
                 <a class="nav-link" href="{% url 'nosotros' %}">Nosotros</a>
             </li>
@@ -27,7 +38,7 @@
                 <a class="nav-link" href="{% url 'seguimiento' %}">Seguimiento pedido</a>
             </li>
             <li class="nav-item mx-3">
-                <a class="nav-link" href="{% url 'carrito' %}">Mi carrito</a>
+                <a class="nav-link" href="{% url 'carrito' %}">Mi Carrito</a>
             </li>
         </ul>
     </div>
