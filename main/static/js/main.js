@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Mostrar colores relacionados
     function mostrarColoresRelacionados(colorHex) {
         const colorData = colorsRelatedMap[colorHex];
-        relatedColorsContainer.innerHTML = `<p>Colores relacionados con ${colorData.name} (${colorHex}):</p>`;
+        relatedColorsContainer.innerHTML = `<h2>Colores Relacionados:</h2>`;
 
         if (!colorData.related || colorData.related.length === 0) {
             relatedColorsContainer.innerHTML += `<p>No hay colores relacionados disponibles.</p>`;

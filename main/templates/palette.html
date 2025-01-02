@@ -1,8 +1,14 @@
 {% extends 'base.html' %}
+{% load static %}
+
 
 {% block content %}
-<div class="container mt-4">
-    <h1 class="text-center">Paleta de Colores</h1>
+<div class="container mt-4 mb-5">
+    <div class="col-12 text-center">
+        <h1>Paleta de Colores</h1>
+        <img src="{% static 'app/media/img/foto2.png' %}" class="img-fluid" alt="Producto 2" style="width: 100%; height: 300px; object-fit: fill;">
+        <p>Recuerda que la tonalidad de los colores está sujeta a los ajustes de tu pantalla. No se aceptan reclamos ni se realizarán devoluciones por problemas de color en el producto entregado. Asegúrate de que el color indicado es el que deseas y que el código es el correcto.</p>
+    </div>
 
     <!-- Barra de colores -->
     <div class="d-flex justify-content-center mt-4">
@@ -15,7 +21,6 @@
     </div>
 
     <div id="related-colors" class="mt-5">
-        <h2>Colores Relacionados</h2>
     </div>
 </div>
 
@@ -32,7 +37,6 @@
 <!-- Pasar el mapa de relaciones al JavaScript -->
 <script>
     const colorsRelatedMap = {{ colors_related_map|safe }};
-    console.log(colorsRelatedMap);
 </script>
 <script src="../static/js/main.js"></script>
 

@@ -26,7 +26,7 @@ urlpatterns = [
     
     
     path('palette/', views.palette_view, name='palette'),
-    path('paletas/', views.paletas, name='paletas'),
+    path('paletas/', views.palette_view, name='paletas'),
  
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
