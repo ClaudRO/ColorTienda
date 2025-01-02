@@ -62,3 +62,20 @@ class transbank(models.Model):
     installments_amount = models.IntegerField(default=0)  
     card_number = models.CharField(max_length=10, default='0')      
     total = models.IntegerField()
+    
+class Color(models.Model):
+    name = models.CharField(max_length=50)  # Nombre del color
+    hex_code = models.CharField(max_length=7)  # Código HEX, por ejemplo: #FF5733
+
+    def __str__(self):
+        return self.name
+
+class ColorRelationship(models.Model):
+    base_color = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='base_color_relationships')
+    related_color = models.ForeignKey(Color, on_delete=models.CASCADE, related_name='related_color_relationships')
+
+    class Meta:
+        unique_together = ('base_color', 'related_color')  # Evitar duplicados
+
+    def __str__(self):
+        return f"{self.base_color.name} -> {self.related_color.name}"

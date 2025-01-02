@@ -14,71 +14,8 @@
 </head>
 
 <body>
-    <header class="py-3" style="background-color: #A7D3FA;">
-        <div class="container d-flex justify-content-between align-items-center" style="color: white;">
-            <div>
-                <a href="#" class="text-light mx-1"><i class="bi bi-facebook"></i></a>
-                <a href="https://www.instagram.com/centrocolorsantodomingo?igsh=MW1xNGtsajczaHVzbQ%3D%3D" target="_blank" class="text-light mx-1">
-                    <i class="bi bi-instagram"></i>
-                </a>
-            </div>
-            <div class="d-flex align-items-center">
-                <!-- Título -->
-                <div class="text-center flex-grow-1">
-                    <h2 class="m-0">Centro Color</h2>
-                </div>
-                <!-- Logo -->
-                <img src="..\static\app\media\img\logo.png" alt="Logo" class="ms-2" style="height: 40px;">
-            </div>
-            
-            <div>
-                {% if user.is_authenticated %}
-                    <span class="me-3">Hola, {{ user.username }}</span>
-                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-light">Cerrar sesión</button>
-                    </form>
-                {% else %}
-                    <!-- Botón "Prueba Color" con corazón blanco a la derecha -->
-                    <a class="btn btn-custom" href="{% url 'login' %}?next={% url 'crud' %}">
-                        Prueba Color <i class="bi bi-heart-fill" style="color: white;"></i>
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-        
-        <style>
-            /* Estilo personalizado para el botón "Prueba Color" */
-            .btn-custom {
-                background-color: #FFB2EC; /* Fondo color rosado */
-                color: #fff; /* Texto blanco */
-                font-weight: bold; /* Letras más gruesas */
-                padding: 12px 24px; /* Aumentar tamaño del botón */
-                border-radius: 25px; /* Bordes redondeados */
-                transition: background-color 0.3s ease, box-shadow 0.3s ease;
-                display: inline-flex; /* Asegura que el texto y el ícono estén en línea */
-                align-items: center; /* Centra el ícono y el texto verticalmente */
-            }
-        
-            .btn-custom:hover {
-                background-color: #e85ebc; /* Cambio de fondo al pasar el ratón */
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave */
-            }
-        
-            .btn-custom i {
-                margin-left: 8px; /* Espacio entre el texto y el ícono */
-            }
-            .container a i {
-        font-size: 24px; /* Ajusta el tamaño de los íconos */
-        transition: transform 0.3s ease; /* Efecto de transición para hover */
-    }
+    {% include 'components/header.html' %}
 
-        </style>
-        
-            
-        
-    </header>
-    
     <!-- Navbar -->
     {% include 'components/navbar.html' %}
     
@@ -139,46 +76,7 @@
     <!-- Footer -->
     {% include 'components/footer.html' %}
 
-    <style>
-        /* Botón flotante */
-        .whatsapp-float {
-            position: fixed;
-            bottom: 20px;
-            /* Distancia desde abajo */
-            right: 20px;
-            /* Distancia desde la derecha */
-            background-color: #25D366;
-            /* Color de fondo de WhatsApp */
-            border-radius: 50%;
-            /* Forma circular */
-            width: 60px;
-            /* Ancho del botón */
-            height: 60px;
-            /* Altura del botón */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            /* Sombra */
-            cursor: pointer;
-            z-index: 1000;
-            /* Para que siempre esté encima */
-            transition: transform 0.3s ease;
-        }
-
-        .whatsapp-float:hover {
-            transform: scale(1.1);
-            /* Efecto al pasar el mouse */
-        }
-
-        /* Ícono dentro del botón */
-        .whatsapp-float img {
-            width: 35px;
-            /* Tamaño del ícono */
-            height: 35px;
-        }
-    </style>
-
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"

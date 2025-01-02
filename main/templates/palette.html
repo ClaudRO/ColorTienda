@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-center">Paleta de Colores</h1>
+
+    <!-- Barra de colores -->
+    <div class="d-flex justify-content-center mt-4">
+        {% for color in colors %}
+            <div class="card text-center color-card" data-color="{{ color.hex_code }}" style="background-color: {{ color.hex_code|default:'#FFFFFF' }}; color: #fff; margin: 10px; cursor: pointer;">
+                <div class="card-body">
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="related-colors" class="mt-5">
+        <h2>Colores Relacionados</h2>
+    </div>
+</div>
+
+<!-- Modal para hacer zoom -->
+<div id="color-zoom-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center;">
+    <div class="modal-content" style="background-color: #fff; padding: 20px; border-radius: 8px; text-align: center;">
+        <div id="zoom-color" style="width: 200px; height: 200px; margin: 0 auto; border-radius: 4px;"></div>
+        <p id="color-name" style="margin-top: 10px; font-size: 18px; font-weight: bold;"></p>
+        <p id="color-code" style="font-size: 16px; color: #666;"></p>
+        <button id="close-modal" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; border: none; background-color: #007bff; color: #fff; border-radius: 4px; cursor: pointer;">Cerrar</button>
+    </div>
+</div>
+
+<!-- Pasar el mapa de relaciones al JavaScript -->
+<script>
+    const colorsRelatedMap = {{ colors_related_map|safe }};
+    console.log(colorsRelatedMap);
+</script>
+<script src="../static/js/main.js"></script>
+
+{% endblock %}

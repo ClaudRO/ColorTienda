@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from .models import Compras, Product, produtosCompras, transbank
+from .models import Compras, Product, produtosCompras, transbank, Color, ColorRelationship
 from .forms import ContactForm
 from django.core.mail import send_mail, BadHeaderError
 from django.shortcuts import render, get_object_or_404, redirect
@@ -38,6 +38,43 @@ def nosotros(request):
 
 def carrito(request):
     return render(request, 'carrito.html')
+
+def paletas(request):
+    return render(request, 'paletas.html')
+
+def palette_view(request):
+    # Obtén todos los colores de la base de datos
+    colors = Color.objects.all()
+
+    # Obtén todas las relaciones de colores
+    color_relationships = ColorRelationship.objects.all()
+
+    # Crear un diccionario donde la clave es el color base y el valor son los colores relacionados
+    colors_related_map = {}
+
+    for relationship in color_relationships:
+        base_color = relationship.base_color
+        related_color = relationship.related_color
+
+        # Si la clave no existe en el diccionario, inicialízala como un diccionario con el nombre y una lista vacía
+        if base_color.hex_code not in colors_related_map:
+            colors_related_map[base_color.hex_code] = {
+                "name": base_color.name,
+                "related": []
+            }
+
+        # Añadir el color relacionado a la lista con su nombre y código hexadecimal
+        colors_related_map[base_color.hex_code]["related"].append({
+            "hex": related_color.hex_code,
+            "name": related_color.name
+        })
+
+    # Pasa los colores y las relaciones de colores al template
+    return render(request, 'palette.html', {
+        'colors': colors,  # Colores básicos
+        'colors_related_map': colors_related_map  # Mapa de colores relacionados con nombres
+    })
+
 
 def pago(request):
     if request.method == 'POST':

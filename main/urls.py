@@ -23,6 +23,10 @@ urlpatterns = [
     path('confirmar_pago/', views.confirmar_pago, name='confirmar_pago'),
     path('resultado_pago/', views.resultado_pago, name='resultado_pago'),
     path('tipo_pagos/', views.tipo_pagos, name='tipo_pagos'),
+    
+    
+    path('palette/', views.palette_view, name='palette'),
+    path('paletas/', views.paletas, name='paletas'),
  
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
