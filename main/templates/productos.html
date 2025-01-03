@@ -11,30 +11,8 @@
 </head>
 
 <body>
-     <header class="py-3" style="background-color: #A7D3FA;">
-        <div class="container d-flex justify-content-between align-items-center" style="color: white;">
-            <div>
-                <a href="#" class="text-light mx-1"><i class="bi bi-facebook"></i></a>
-                <a href="https://www.instagram.com/centrocolorsantodomingo?igsh=MW1xNGtsajczaHVzbQ%3D%3D" target="_blank" class="text-light mx-1">
-                    <i class="bi bi-instagram"></i>
-                </a>
-            </div>
-            <div class="text-center flex-grow-1">
-                <h5 class="m-0">Centro Color</h5>
-            </div>
-            <div>
-                {% if user.is_authenticated %}
-                    <span class="me-3">Hola, {{ user.username }}</span>
-                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-light">Cerrar sesión</button>
-                    </form>
-                {% else %}
-                    <a class="btn btn-outline-light" href="{% url 'login' %}?next={% url 'crud' %}">Prueba Color</a>
-                {% endif %}
-            </div>
-        </div>
-    </header>
+    {% include 'components/header.html' %}
+
     <!-- Navbar -->
     {% include 'components/navbar.html' %}
 
@@ -72,26 +50,76 @@
                 <div class="col">
                     <div class="card h-100 text-center" style="padding: 10px;">
                         <!-- Mostrar la imagen del producto -->
+                        {% if product.image %}
                         <img src="{{ product.image.url }}" class="card-img-top mx-auto mb-5"
                             style="width: 200px; height: 200px;" alt="{{ product.name }}">
+                        {% endif %}
+
                         <div class="card-body p-5">
                             <h6 class="card-title">{{ product.name }}</h6>
                             <p class="card-text">${{ product.price }}</p>
-                            <button class="btn btn-outline-dark btn-sm add-to-cart" data-id="{{ product.id }}"
-                                data-name="{{ product.name }}" data-type="{{ product.type }}"
-                                data-price="{{ product.price }}" data-image="{{ product.image.url }}">
+                            <button class="btn btn-outline-dark btn-sm add-to-cart" 
+                                data-id="{{ product.id }}" 
+                                data-name="{{ product.name }}" 
+                                data-type="{{ product.type }}" 
+                                data-price="{{ product.price }}" 
+                                {% if product.image %}
+                                data-image="{{ product.image.url }}"
+                                {% endif %}
+
+                                data-category="{% if product.name == 'Pinturas' %}pinturas{% endif %}">
                                 Agregar al carrito
                             </button>
+
                         </div>
                     </div>
                 </div>
                 {% endfor %}
             </div>
         </div>
+     
+        
     </section>
 
     <!-- Footer -->
     {% include 'components/footer.html' %}
+
+    <!-- Modal para personalizar pinturas -->
+<div class="modal fade" id="paintModal" tabindex="-1" aria-labelledby="paintModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="paintModalLabel">Personalizar Pintura</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="paintForm">
+            <div class="mb-3">
+              <label for="paintQuantity" class="form-label">Cantidad (en litros)</label>
+              <input type="number" class="form-control" id="paintQuantity" placeholder="Ejemplo: 1" min="1" required>
+            </div>
+            <div class="mb-3">
+                <div class="mb-3">
+                    <label for="paintColorCode" class="form-label">Código de Color</label>
+                    <small class="form-text text-muted">
+                      Puedes buscar el código del color que prefieras en la paleta de colores de Lanco
+                      <a href="https://tienda.lancochile.com/pages/paleta-de-colores" target="_blank">
+                        AQUI
+                      </a>.
+                    </small>
+                    <input type="text" class="form-control" id="paintColorCode" placeholder="Ejemplo: ROX123" required>
+                    <small class="form-text text-muted">El código de color se encuentra en la paleta de colores provista.</small>
+                  </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="savePaint">Agregar al Carrito</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
 
     <script>
@@ -134,68 +162,75 @@
         };
 
         // Agregar al carrito
-        document.querySelectorAll('.add-to-cart').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const product = {
-                    id: button.dataset.id,
-                    name: button.dataset.name,
-                    type: button.dataset.type,
-                    price: parseFloat(button.dataset.price),
-                    image: button.dataset.image,
-                    quantity: 1
-                };
+        // Agregar al carrito (modificado)
+document.querySelectorAll('.add-to-cart').forEach(button => {
+    button.addEventListener('click', (e) => {
+        const category = button.dataset.category;
 
-                const existingProduct = cartItems.find(item => item.id === product.id);
-                if (existingProduct) {
-                    existingProduct.quantity += 1;
-                } else {
-                    cartItems.push(product);
-                }
+        if (category === 'pinturas') {
+            // Mostrar el modal de personalización de pinturas
+            const paintModal = new bootstrap.Modal(document.getElementById('paintModal'));
+            paintModal.show();
 
-                renderCart();
-                const offcanvas = new bootstrap.Offcanvas(document.getElementById('cart-sidebar'));
-                offcanvas.show();
+            // Guardar la información básica del producto en un dataset temporal
+            document.getElementById('savePaint').dataset.id = button.dataset.id;
+            document.getElementById('savePaint').dataset.name = button.dataset.name;
+            document.getElementById('savePaint').dataset.price = button.dataset.price;
+            document.getElementById('savePaint').dataset.image = button.dataset.image;
+        } else {
+            // Agregar productos normales al carrito como siempre
+            addToCart({
+                id: button.dataset.id,
+                name: button.dataset.name,
+                price: parseFloat(button.dataset.price),
+                image: button.dataset.image,
+                quantity: 1
             });
-        });
+        }
+    });
+});
 
-        // Modificar cantidades y eliminar productos
-        cartItemsList.addEventListener('change', (e) => {
-            if (e.target.classList.contains('quantity-input')) {
-                const index = e.target.dataset.index;
-                cartItems[index].quantity = parseInt(e.target.value);
-                renderCart();
-            }
-        });
+// Manejar el guardado de una pintura personalizada
+document.getElementById('savePaint').addEventListener('click', () => {
+    const id = document.getElementById('savePaint').dataset.id;
+    const name = document.getElementById('savePaint').dataset.name;
+    const basePrice = parseFloat(document.getElementById('savePaint').dataset.price);
+    const image = document.getElementById('savePaint').dataset.image;
+    const quantity = parseInt(document.getElementById('paintQuantity').value);
+    const colorCode = document.getElementById('paintColorCode').value;
 
-        cartItemsList.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-item')) {
-                const index = e.target.dataset.index;
-                cartItems.splice(index, 1);
-                renderCart();
-            }
-        });
+    if (!quantity || !colorCode) {
+        alert('Por favor, completa todos los campos.');
+        return;
+    }
 
-        // Renderizar el carrito al cargar la página
-        renderCart();
+    addToCart({
+        id,
+        name: `${name} (${colorCode})`,
+        price: basePrice * quantity,
+        image,
+        quantity,
+        colorCode
+    });
 
-        // Botón de ir a pagar
-        document.getElementById('checkout-btn').addEventListener('click', () => {
-            fetch('/carrito/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(cartItems)
-            })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/carrito/';
-                    } else {
-                        console.error('Error al enviar los datos del carrito.');
-                    }
-                });
-        });
+    // Cerrar el modal
+    const paintModal = bootstrap.Modal.getInstance(document.getElementById('paintModal'));
+    paintModal.hide();
+});
+
+// Función para agregar productos al carrito (centralizar lógica)
+function addToCart(product) {
+    const existingProduct = cartItems.find(item => item.id === product.id && item.colorCode === product.colorCode);
+    if (existingProduct) {
+        existingProduct.quantity += product.quantity;
+    } else {
+        cartItems.push(product);
+    }
+    renderCart();
+    const offcanvas = new bootstrap.Offcanvas(document.getElementById('cart-sidebar'));
+    offcanvas.show();
+}
+
 
     </script>
     <script>

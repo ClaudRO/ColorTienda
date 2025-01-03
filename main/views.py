@@ -36,9 +36,6 @@ def contacto(request):
 def nosotros(request):
     return render(request, 'nosotros.html')
 
-def carrito(request):
-    return render(request, 'carrito.html')
-
 def paletas(request):
     return render(request, 'paletas.html')
 
