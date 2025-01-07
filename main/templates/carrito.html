@@ -48,27 +48,49 @@
         
         
         <h1>Carrito de Compras</h1>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Precio</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in cart_items %}
-                <tr>
-                    <td>{{ item.name }}</td>
-                    <td>${{ item.price }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>${{ item.quantity|multiply:item.price }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            
-        </table>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad/Volumen</th>
+            <th>Valor</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart_items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>${{ item.price }}</td>
+            <td>
+                {% if item.volumen %}
+                {{ item.volumen }}L
+                {% else %}
+                {{ item.quantity }}
+                {% endif %}
+            </td>
+            <td>
+                {% if item.volumen %}
+                ${{ item.volumen|multiply:item.price }}
+                {% else %}
+                ${{ item.quantity|multiply:item.price }}
+                {% endif %}
+            </td>
+        </tr>
+        
+        {% endfor %}
+        <tr>
+            <td colspan="3" class="text-end"><strong>Envío</strong></td>
+            <td id="shipping-display">$0.00</td>
+        </tr>
+        <tr>
+            <td colspan="3" class="text-end"><strong>Sub Total</strong></td>
+            <td id="subtotal-display">$0.00</td>
+        </tr>
+        
+    </tbody>
+</table>
+
 
 
 
@@ -224,17 +246,33 @@
             let totalFinal = totalBase;
     
             // Mostrar el total inicial
+            const subtotalDisplay = document.getElementById("subtotal-display");
+            subtotalDisplay.textContent = `${totalBase.toFixed(2)}`;
+
             totalDisplay.textContent = totalBase.toFixed(2);
     
             // Detectar cambios en la selección de la zona de envío
-            zona.addEventListener("change", function () {
-                const selectedOption = zona.options[zona.selectedIndex];
-                const costoEnvio = parseFloat(selectedOption.dataset.costo) || 0;
-                totalFinal = totalBase + costoEnvio;
-    
-                // Actualizar el total mostrado
-                totalDisplay.textContent = totalFinal.toFixed(2);
-            });
+            document.getElementById('zona').addEventListener('change', (e) => {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const shippingCost = parseFloat(selectedOption.dataset.costo) || 0;
+            const shippingDisplay = document.getElementById('shipping-display');
+            const totalDisplay = document.getElementById('total-display');
+
+            // Actualizar el costo de envío mostrado en la tabla
+            shippingDisplay.textContent = `$${shippingCost.toFixed(2)}`;
+
+            // Calcular el nuevo total sumando el costo del carrito y el costo de envío
+            let cartTotal = parseFloat(document.getElementById('cart-total').textContent.replace('$', '')) || 0;
+            let newTotal = cartTotal + shippingCost;
+
+            // Actualizar el total mostrado en la tabla
+            subtotalDisplay.textContent = `$${newTotal.toFixed(2)}`;
+
+            totalDisplay.textContent = `${newTotal.toFixed(2)}`;
+        });
+
+
+            
     
             // Manejar el envío del formulario
             form.addEventListener("submit", function (e) {
@@ -297,64 +335,54 @@
 
         // Renderizar el carrito
         const renderCart = () => {
-            cartItemsList.innerHTML = '';
-            let total = 0;
+    cartItemsList.innerHTML = '';
+    let total = 0;
 
-            cartItems.forEach((item, index) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-                listItem.innerHTML = `
-    <div class="d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center" style="gap: 10px;">
-            <img src="${item.image}" style="width: 50px; height: 50px;" class="me-2">
-            <span>${item.name}</span>
-        </div>
-        <div class="d-flex align-items-center" style="gap: 10px; margin-left:10px">
-            <input type="number" value="${item.quantity}" min="1" 
-                data-index="${index}" 
-                class="form-control form-control-sm quantity-input" 
-                style="width: 65px; text-align: center;">
-            <span class="fw-bold ms-3">$${(item.price * item.quantity).toFixed(2)}</span>
-            <button class="btn btn-sm btn-danger remove-item" 
-                data-index="${index}" 
-                style="padding: 4px 8px; border-radius: 5px;">&times;</button>
-        </div>
-    </div>
-`;
-        
-                cartItemsList.appendChild(listItem);
-                total += item.price * item.quantity;
-            });
+    cartItems.forEach((item, index) => {
+        const volume = item.volumen || 0; // Si no hay volumen, mostrar 0
+        const quantity = item.quantity || 0; // Si no hay cantidad, mostrar 0
 
-            cartTotal.textContent = `$${total.toFixed(2)}`;
-            sessionStorage.setItem('cart', JSON.stringify(cartItems));
-        };
+        // Determinar el subtotal basado en el tipo de producto
+        const isPaint = volume > 0; // Si hay volumen, asumimos que es pintura
+        const subtotal = isPaint ? item.price * volume : item.price * quantity;
 
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+        // Detalles del producto con campos obligatorios y condicionales
+        let productDetails = `
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <img src="${item.image}" style="width: 50px; height: 50px;" class="me-2">
+                    <div>
+                        <span>${item.name}</span>
+                        ${item.colorCode ? `<br><small class="text-muted">Color: ${item.colorCode}</small>` : ''}
+                        ${isPaint ? `<br><small class="text-muted">Volumen: ${volume}L</small>` : `<br><small class="text-muted">Cantidad: ${quantity}</small>`}
+                    </div>
+                </div>
+                <div class="d-flex align-items-center" style="gap: 10px; margin-left:10px">
+                    <input type="number" value="${isPaint ? volume : quantity}" min="1" 
+                        data-index="${index}" 
+                        class="form-control form-control-sm quantity-input" 
+                        style="width: 65px; text-align: center;">
+                    <span class="fw-bold ms-3">$${subtotal.toFixed(2)}</span>
+                    <button class="btn btn-sm btn-danger remove-item" 
+                        data-index="${index}" 
+                        style="padding: 4px 8px; border-radius: 5px;">&times;</button>
+                </div>
+            </div>
+        `;
+
+        listItem.innerHTML = productDetails;
+        cartItemsList.appendChild(listItem);
+        total += subtotal; // Sumar al total general
+    });
+
+    cartTotal.textContent = `$${total.toFixed(2)}`;
+    sessionStorage.setItem('cart', JSON.stringify(cartItems));
+};
         // Agregar al carrito
-        document.querySelectorAll('.add-to-cart').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const product = {
-                    id: button.dataset.id,
-                    name: button.dataset.name,
-                    type: button.dataset.type,
-                    price: parseFloat(button.dataset.price),
-                    image: button.dataset.image,
-                    quantity: 1
-                };
-
-                const existingProduct = cartItems.find(item => item.id === product.id);
-                if (existingProduct) {
-                    existingProduct.quantity += 1;
-                } else {
-                    cartItems.push(product);
-                }
-
-                renderCart();
-                const offcanvas = new bootstrap.Offcanvas(document.getElementById('cart-sidebar'));
-                offcanvas.show();
-            });
-        });
-
+        
         // Modificar cantidades y eliminar productos
         cartItemsList.addEventListener('change', (e) => {
             if (e.target.classList.contains('quantity-input')) {

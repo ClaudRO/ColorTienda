@@ -15,6 +15,8 @@ class Product(models.Model):
         return self.name
 
 
+
+
 class ContactMessage(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -44,11 +46,44 @@ class Compras(models.Model):
 class produtosCompras(models.Model):
     id_compra = models.CharField(max_length=100)
     id_product = models.IntegerField()
-    cantidad = models.IntegerField()
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    oferta = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    precio_final = models.IntegerField()
+    cantidad = models.IntegerField(verbose_name="Cantidad de Productos")
+    precio = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Precio por Unidad")
+    oferta = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Descuento")
+    precio_final = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        verbose_name="Precio Final",
+        editable=False,
+        blank=True, 
+        null=True  # Permitir que sea opcional
+    )
     
+    class Meta:
+        verbose_name = "Producto Comprado"
+        verbose_name_plural = "Productos Comprados"
+    def __str__(self):
+        return f"Compra {self.id_compra} - Producto {self.id_product}"
+
+
+class ProdutosComprasPintura(produtosCompras):
+    volumen = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        verbose_name="Volumen en Litros",
+        help_text="Cantidad en litros para pinturas."
+    )
+    colorCode = models.CharField(
+        max_length=50,
+        verbose_name="Color",
+        help_text="Especifica el código del color de la pintura elegida."
+    )
+
+    class Meta:
+        verbose_name = "Pintura Comprada"
+        verbose_name_plural = "Pinturas Compradas"
+
+    def __str__(self):
+        return f"Pintura {self.id_product} - {self.volumen}L - {self.colorCode}"
+
 class transbank(models.Model):
     id = models.AutoField(primary_key=True)  
     fecha = models.DateTimeField(auto_now_add=True)  

@@ -17,27 +17,28 @@
     {% include 'components/navbar.html' %}
 
     <!-- Carrito de Compras -->
-    <!-- Carrito de Compras -->
     <div id="cart-sidebar" class="offcanvas offcanvas-end" style="width: 500px; height: 100%;" tabindex="-1"
-        aria-labelledby="cartLabel">
-        <div class="offcanvas-header">
-            <h5 id="cartLabel">Carrito de Compras</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body">
-            <ul id="cart-items" class="list-group mb-3">
-                <!-- Los productos añadidos al carrito se renderizan aquí dinámicamente -->
-            </ul>
-            <div class="d-flex justify-content-between align-items-center">
-                <strong>Total:</strong>
-                <span id="cart-total" class="fw-bold">$0.00</span>
-            </div>
-            <form method="POST" action="/carrito/">
-                {% csrf_token %}
-                <button id="checkout-btn" type="button" class="btn btn-primary w-100 mt-3">Ir a Pagar</button>
-            </form>
-        </div>
+    aria-labelledby="cartLabel">
+    <div class="offcanvas-header">
+        <h5 id="cartLabel">Carrito de Compras</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
+    <div class="offcanvas-body">
+        <ul id="cart-items" class="list-group mb-3">
+            <!-- Los productos añadidos al carrito se renderizan aquí dinámicamente -->
+        </ul>
+        <div class="d-flex justify-content-between align-items-center">
+            <strong>Total:</strong>
+            <span id="cart-total" class="fw-bold">$0.00</span>
+        </div>
+        <form method="POST" action="/carrito/">
+            {% csrf_token %}
+            <button id="checkout-btn" type="button" class="btn btn-primary w-100 mt-3">Ir a Pagar</button>
+        </form>
+    </div>
+</div>
+
+
 
 
     <!-- Sección de productos -->
@@ -129,39 +130,54 @@
 
         // Renderizar el carrito
         const renderCart = () => {
-            cartItemsList.innerHTML = '';
-            let total = 0;
+    cartItemsList.innerHTML = '';
+    let total = 0;
 
-            cartItems.forEach((item, index) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-                listItem.innerHTML = `
-    <div class="d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center" style="gap: 10px;">
-            <img src="${item.image}" style="width: 50px; height: 50px;" class="me-2">
-            <span>${item.name}</span>
-        </div>
-        <div class="d-flex align-items-center" style="gap: 10px; margin-left:10px">
-            <input type="number" value="${item.quantity}" min="1" 
-                data-index="${index}" 
-                class="form-control form-control-sm quantity-input" 
-                style="width: 65px; text-align: center;">
-            <span class="fw-bold ms-3">$${(item.price * item.quantity).toFixed(2)}</span>
-            <button class="btn btn-sm btn-danger remove-item" 
-                data-index="${index}" 
-                style="padding: 4px 8px; border-radius: 5px;">&times;</button>
-        </div>
-    </div>
-`;
-                cartItemsList.appendChild(listItem);
-                total += item.price * item.quantity;
-            });
+    cartItems.forEach((item, index) => {
+        const volume = item.volumen || 0; // Si no hay volumen, mostrar 0
+        const quantity = item.quantity || 0; // Si no hay cantidad, mostrar 0
 
-            cartTotal.textContent = `$${total.toFixed(2)}`;
-            sessionStorage.setItem('cart', JSON.stringify(cartItems));
-        };
+        // Determinar el subtotal basado en el tipo de producto
+        const isPaint = volume > 0; // Si hay volumen, asumimos que es pintura
+        const subtotal = isPaint ? item.price * volume : item.price * quantity;
 
-        // Agregar al carrito
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+        // Detalles del producto con campos obligatorios y condicionales
+        let productDetails = `
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center" style="gap: 10px;">
+                    <img src="${item.image}" style="width: 50px; height: 50px;" class="me-2">
+                    <div>
+                        <span>${item.name}</span>
+                        ${isPaint ? `<br><small class="text-muted">Cantidad: ${quantity}</small>` : ''}
+                    </div>
+                </div>
+                <div class="d-flex align-items-center" style="gap: 10px; margin-left:10px">
+                    <label for="input-${index}" class="me-2">${isPaint ? 'Volumen' : 'Cantidad'}:</label>
+                    <input type="number" id="input-${index}" value="${isPaint ? volume : quantity}" min="1" 
+                        data-index="${index}" 
+                        class="form-control form-control-sm quantity-input" 
+                        style="width: 65px; text-align: center;">
+                    <span class="fw-bold ms-3">$${subtotal.toFixed(2)}</span>
+                    <button class="btn btn-sm btn-danger remove-item" 
+                        data-index="${index}" 
+                        style="padding: 4px 8px; border-radius: 5px;">&times;</button>
+                </div>
+            </div>
+        `;
+
+        listItem.innerHTML = productDetails;
+        cartItemsList.appendChild(listItem);
+        total += subtotal; // Sumar al total general
+    });
+
+    cartTotal.textContent = `$${total.toFixed(2)}`;
+    sessionStorage.setItem('cart', JSON.stringify(cartItems));
+};
+
+
         // Agregar al carrito (modificado)
 document.querySelectorAll('.add-to-cart').forEach(button => {
     button.addEventListener('click', (e) => {
@@ -196,10 +212,10 @@ document.getElementById('savePaint').addEventListener('click', () => {
     const name = document.getElementById('savePaint').dataset.name;
     const basePrice = parseFloat(document.getElementById('savePaint').dataset.price);
     const image = document.getElementById('savePaint').dataset.image;
-    const quantity = parseInt(document.getElementById('paintQuantity').value);
+    const volumen = parseFloat(document.getElementById('paintQuantity').value); // Volumen en litros
     const colorCode = document.getElementById('paintColorCode').value;
 
-    if (!quantity || !colorCode) {
+    if (!volumen || !colorCode) {
         alert('Por favor, completa todos los campos.');
         return;
     }
@@ -207,9 +223,10 @@ document.getElementById('savePaint').addEventListener('click', () => {
     addToCart({
         id,
         name: `${name} (${colorCode})`,
-        price: basePrice * quantity,
+        price: basePrice, // El precio base se mantiene igual
         image,
-        quantity,
+        quantity: 1, // La cantidad para pinturas siempre será 1 (unidad personalizada)
+        volumen, // Guardamos el volumen como campo separado
         colorCode
     });
 
@@ -230,7 +247,23 @@ function addToCart(product) {
     const offcanvas = new bootstrap.Offcanvas(document.getElementById('cart-sidebar'));
     offcanvas.show();
 }
-
+document.getElementById('checkout-btn').addEventListener('click', () => {
+            fetch('/carrito/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify(cartItems)
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/carrito/';
+                    } else {
+                        console.error('Error al enviar los datos del carrito.');
+                    }
+                });
+        });
 
     </script>
     <script>

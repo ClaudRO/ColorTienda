@@ -169,17 +169,7 @@ def product_list(request):
     products = Product.objects.all()  # Obtén todos los productos de la base de datos
     return render(request, 'productos.html', {'products': products})
 
-def carrito(request):
-    # Manejar el carrito exclusivamente desde la sesión
-    if request.method == 'POST':
-        import json
-        # Guardar los datos del carrito en la sesión
-        request.session['carrito'] = json.loads(request.body)
-        return JsonResponse({'message': 'Carrito recibido correctamente'})
 
-    # Obtener los datos del carrito desde la sesión
-    cart_data = request.session.get('carrito', {})
-    return render(request, 'carrito.html', {'cart_items': cart_data})
 
     
 def desc_product_front(data):
@@ -352,20 +342,63 @@ def resultado_pago(request):
         'totalFinal': total_final,
     })
 
+def carrito(request):
+    if request.method == 'POST':
+        import json
+        try:
+            carrito_data = json.loads(request.body)
+            if not isinstance(carrito_data, list):
+                return JsonResponse({'error': 'Formato de datos inválido, se esperaba una lista.'}, status=400)
+
+            # Validar y procesar cada item en el carrito
+            for item in carrito_data:
+                item['quantity'] = int(item.get('quantity', 1))
+                item['price'] = float(item.get('price', 0))
+
+                # Manejar el código de color si está presente
+                if 'colorCode' in item:
+                    item['colorCode'] = item['colorCode'].strip().upper()
+
+                # Validar y manejar el volumen (si aplica)
+                if 'volumen' in item:
+                    try:
+                        item['volumen'] = float(item['volumen'])
+                        if item['volumen'] <= 0:
+                            return JsonResponse({'error': 'El volumen debe ser mayor que 0.'}, status=400)
+                    except ValueError:
+                        return JsonResponse({'error': 'Volumen inválido.'}, status=400)
+
+            # Almacenar los datos procesados en la sesión
+            request.session['carrito'] = carrito_data
+            return JsonResponse({'message': 'Carrito actualizado correctamente'})
+        except (ValueError, KeyError) as e:
+            return JsonResponse({'error': f'Datos inválidos: {str(e)}'}, status=400)
+
+    # Obtener datos del carrito (si no es POST)
+    cart_data = request.session.get('carrito', [])
+    return render(request, 'carrito.html', {'cart_items': cart_data})
+
 
 def carrito_view(request):
     # Obtén los productos del carrito desde la sesión
     cart_items = obtener_items_carrito(request)
-    
-    # Calcula el total asegurándote de que los valores son correctos
-    total = sum(item['quantity'] * item['price'] for item in cart_items if item['price'] and item['quantity'])
-    
+
+    # Calcula el subtotal considerando descuentos y volumen (si aplica)
+    for item in cart_items:
+        oferta = item.get('oferta', 0)
+        volumen = item.get('volumen', 1)  # Valor predeterminado de 1 si no aplica
+        item['subtotal'] = (item['price'] - oferta) * item['quantity'] * volumen
+
+    # Calcula el total sumando los subtotales
+    total = sum(item['subtotal'] for item in cart_items)
+
     # Renderiza el template
     return render(request, 'carrito.html', {
         'cart_items': cart_items,
-        'total': round(total, 2)  # Redondea a 2 decimales si es necesario
+        'total': round(total, 2),  # Redondea a 2 decimales
     })
 
+    
 def obtener_items_carrito(request):
     carrito = request.session.get('carrito', {})
     items = []
@@ -373,12 +406,16 @@ def obtener_items_carrito(request):
         # Asegúrate de que el precio y la cantidad sean números válidos
         price = float(detalles.get('price', 0))  # Convierte a float, predeterminado a 0 si está vacío
         quantity = int(detalles.get('quantity', 0))  # Convierte a entero
-        items.append({
+        item = {
             'id': item_id,
             'name': detalles.get('name', 'Producto desconocido'),
             'price': price,
             'quantity': quantity,
-        })
+        }
+        # Incluye detalles adicionales si están presentes
+        if 'colorCode' in detalles:
+            item['colorCode'] = detalles['colorCode']
+        items.append(item)
     return items
 
 def tipo_pagos(request):
