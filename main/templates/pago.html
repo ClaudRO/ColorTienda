@@ -102,7 +102,7 @@
             zona.addEventListener("change", function () {
                 const costoEnvio = parseFloat(zona.options[zona.selectedIndex].dataset.costo || 0);
                 totalFinal = totalBase + costoEnvio;
-                totalDisplay.textContent = totalFinal.toFixed(2);
+                totalDisplay.textContent = `$${Math.round(totalFinal)}`
             });
 
             form.addEventListener("submit", function (e) {

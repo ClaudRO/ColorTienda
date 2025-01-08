@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resumen de compra</title>
     {% load static %}
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
@@ -14,7 +15,7 @@
 <body>
     <!-- Encabezado y navegación -->
     {% include 'components/header.html' %}
-
+    
 
     {% include 'components/navbar.html' %}
 
@@ -32,7 +33,7 @@
             </ul>
             <div class="d-flex justify-content-between align-items-center">
                 <strong>Total:</strong>
-                <span id="cart-total" class="fw-bold">$0.00</span>
+                <span id="cart-total" class="fw-bold">$0</span>
             </div>
             <form method="POST" action="/carrito/">
                 {% csrf_token %}
@@ -43,6 +44,8 @@
     
 
     {% load custom_filters %}
+    {% load humanize %}
+
 
     <div class="container mt-5">
         
@@ -61,7 +64,7 @@
         {% for item in cart_items %}
         <tr>
             <td>{{ item.name }}</td>
-            <td>${{ item.price }}</td>
+            <td>${{ item.price|floatformat:0|intcomma }}</td>
             <td>
                 {% if item.volumen %}
                 {{ item.volumen }}L
@@ -71,9 +74,9 @@
             </td>
             <td>
                 {% if item.volumen %}
-                ${{ item.volumen|multiply:item.price }}
+                ${{ item.volumen|multiply:item.price |floatformat:0 |intcomma }}
                 {% else %}
-                ${{ item.quantity|multiply:item.price }}
+                ${{ item.quantity|multiply:item.price |floatformat:0 |intcomma}}
                 {% endif %}
             </td>
         </tr>
@@ -81,11 +84,11 @@
         {% endfor %}
         <tr>
             <td colspan="3" class="text-end"><strong>Envío</strong></td>
-            <td id="shipping-display">$0.00</td>
+            <td id="shipping-display">$0</td>
         </tr>
         <tr>
             <td colspan="3" class="text-end"><strong>Sub Total</strong></td>
-            <td id="subtotal-display">$0.00</td>
+            <td id="subtotal-display">$0</td>
         </tr>
         
     </tbody>
@@ -194,7 +197,8 @@
                 console.log(csrftoken);
 
                 document.querySelector(".btn-send-tbk").addEventListener("click", () =>{
-                    
+                    const shippingCost = parseFloat(document.getElementById('shipping-display').textContent.replace("$", "")) || 0;
+
                     console.log(productos_lista)
 
                     const data_post = {
@@ -204,6 +208,7 @@
                         correo: correoFormulario.value,
                         zona: zona.value,
                         direccion: direccionFormulario.value,
+                        costo_envio: shippingCost, // Agregar el costo de envío
                         total: totalFinal,
                         productos: JSON.stringify(productos_lista)
                     }
@@ -247,9 +252,11 @@
     
             // Mostrar el total inicial
             const subtotalDisplay = document.getElementById("subtotal-display");
-            subtotalDisplay.textContent = `${totalBase.toFixed(2)}`;
-
-            totalDisplay.textContent = totalBase.toFixed(2);
+            function formatNumber(num) {
+                return new Intl.NumberFormat('en-EU', { minimumFractionDigits: 0 }).format(num);
+            }
+            subtotalDisplay.textContent = `$${formatNumber(Math.round(totalBase))}`;
+            totalDisplay.textContent = `${formatNumber(Math.round(totalBase))}`;
     
             // Detectar cambios en la selección de la zona de envío
             document.getElementById('zona').addEventListener('change', (e) => {
@@ -259,16 +266,16 @@
             const totalDisplay = document.getElementById('total-display');
 
             // Actualizar el costo de envío mostrado en la tabla
-            shippingDisplay.textContent = `$${shippingCost.toFixed(2)}`;
+            shippingDisplay.textContent = `$${formatNumber(Math.round(shippingCost))}`;
 
             // Calcular el nuevo total sumando el costo del carrito y el costo de envío
             let cartTotal = parseFloat(document.getElementById('cart-total').textContent.replace('$', '')) || 0;
             let newTotal = cartTotal + shippingCost;
 
             // Actualizar el total mostrado en la tabla
-            subtotalDisplay.textContent = `$${newTotal.toFixed(2)}`;
+            subtotalDisplay.textContent = `$${formatNumber(Math.round(newTotal))}`;
 
-            totalDisplay.textContent = `${newTotal.toFixed(2)}`;
+            totalDisplay.textContent = `${formatNumber(Math.round(newTotal))}`;
         });
 
 

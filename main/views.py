@@ -178,83 +178,84 @@ def desc_product_front(data):
     return list
 
 def iniciar_pago(request):
-    # return 'pipo'
-    # if request.method == 'POST':
-    # return JsonResponse({'foo':'bar'})
     data = json.loads(request.body)
-    # PASAR TODAS LAS VARIABLES DEL FORMULARIO
+    
+    # Extraer datos del formulario
     nombre = data['nombre']
     rut = data['rut']
     telefono = data['telefono']
     correo = data['correo']
     zona = data['zona']
     direccion = data['direccion']
-    total = data['total']
-    productos_list = desc_product_front(data['productos'])
-    #telefono = data['phone']
-    #total = request.GET.get("total", 0)  # Capturar el monto del carrito
-    #total = int(total)  # Convertir a entero
-    
-    
+    total = int(data['total'])  # Subtotal sin costo de envío
+    costo_envio = int(data.get('costo_envio', 0))  # Costo de envío con valor predeterminado 0
+
+    # Sumar el costo de envío al total
+    total_final = total + costo_envio
+
+    # Obtener URLs de retorno para Transbank
     url_retorno = request.build_absolute_uri('/confirmar_pago/')
     url_final = request.build_absolute_uri('/resultado_pago/')
 
-    # insert data in compras
-    
+    # Crear la compra en la base de datos
     compra = Compras(
         nombre=nombre,
         rut=rut,
         telefono=telefono,
         correo=correo,
         direccion=direccion,
-        costo_envio = 0,
-        total=total
+        costo_envio=costo_envio,  # Guardar el costo de envío
+        total=total_final  # Total actualizado con envío
     )
     compra.save()
+
+    # Guardar IDs en la sesión
     request.session['compra_id'] = compra.id
     request.session['totalFinal'] = compra.total
 
-
-    # productos
-   
+    # Guardar productos en la base de datos
+    productos_list = desc_product_front(data['productos'])
     for item in productos_list:
         product = produtosCompras(
-            id_compra = compra.id,
-            id_product = item['id'],
-            cantidad = item['quantity'],
-            precio = item['price'],
-            oferta = 0,
-            precio_final = item['price'] * item['quantity']
+            id_compra=compra.id,
+            id_product=item['id'],
+            cantidad=item['quantity'],
+            precio=item['price'],
+            oferta=0,
+            precio_final=item['price'] * item['quantity']
         )
         product.save()
-    
-    session_id = str(uuid4())[:26]  # O usar datetime.now().strftime('%Y%m%d%H%M%S%f')[:26]
 
+    # Crear transacción en Transbank
+    session_id = str(uuid4())[:26]
     respuesta = Transaction().create(
-        buy_order = str(compra.id),
-        session_id = session_id,
-        amount = int(total),
-        return_url = url_retorno,
+        buy_order=str(compra.id),
+        session_id=session_id,
+        amount=int(total_final),  # Total actualizado con envío
+        return_url=url_retorno,
     )
-    url = respuesta['url'] + '?token_ws=' + respuesta['token']
-    
-    # INSERTAR EN TBK
-    transaccion = transbank(
 
-            fecha = datetime.now(),
-            session_id = session_id,
-            token = respuesta['token'],
-            id_compras = compra.id,
-             response_code = '',  
-            authorization_code = '',  
-            payment_type_code = '',  
-            installments_number = 0,  
-            installments_amount = 0,  
-            card_number = '', 
-            total=total,
-        )
+    # Guardar información de la transacción en la base de datos
+    transaccion = transbank(
+        fecha=datetime.now(),
+        session_id=session_id,
+        token=respuesta['token'],
+        id_compras=compra.id,
+        response_code='',  
+        authorization_code='',  
+        payment_type_code='',  
+        installments_number=0,  
+        installments_amount=0,  
+        card_number='', 
+        total=total_final  # Total con envío
+    )
     transaccion.save()
-    return JsonResponse({'mensaje':'success', 'data' :url  })
+
+    # URL para redirigir al cliente
+    url = respuesta['url'] + '?token_ws=' + respuesta['token']
+
+    return JsonResponse({'mensaje': 'success', 'data': url})
+
 
 def confirmar_pago(request):
     # Obtener el token desde los parámetros GET
