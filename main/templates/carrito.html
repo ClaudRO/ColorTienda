@@ -64,7 +64,7 @@
         {% for item in cart_items %}
         <tr>
             <td>{{ item.name }}</td>
-            <td>${{ item.price|floatformat:0|intcomma }}</td>
+            <td>${{ item.price|floatformat:0|intcomma_dot }}</td>
             <td>
                 {% if item.volumen %}
                 {{ item.volumen }}L
@@ -74,9 +74,9 @@
             </td>
             <td>
                 {% if item.volumen %}
-                ${{ item.volumen|multiply:item.price |floatformat:0 |intcomma }}
+                ${{ item.volumen|multiply:item.price |floatformat:0 |intcomma_dot }}
                 {% else %}
-                ${{ item.quantity|multiply:item.price |floatformat:0 |intcomma}}
+                ${{ item.quantity|multiply:item.price |floatformat:0 |intcomma_dot }}
                 {% endif %}
             </td>
         </tr>
@@ -193,8 +193,6 @@
                 const url_tbk = "{% url 'iniciar_pago' %}";
                 // const csrf ="{% csrf_token %}"
                 const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                console.log("holamundo")
-                console.log(csrftoken);
 
                 document.querySelector(".btn-send-tbk").addEventListener("click", () =>{
                     const shippingCost = parseFloat(document.getElementById('shipping-display').textContent.replace("$", "")) || 0;
@@ -233,14 +231,21 @@
 
                 })
 
-               
+            function formatNumberWithDot(num) {
+                // Convierte el número en un formato con puntos como separador de miles
+                return num.toLocaleString('es-CL', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                }).replace(",", ".");
+            }
+  
 
 
             // Función para calcular el total base basado en los subtotales
             function calcularTotalBase() {
                 let total = 0;
                 subtotalElements.forEach(el => {
-                    const subtotal = parseFloat(el.textContent.replace("$", "").replace(",", "")) || 0;
+                    const subtotal = parseFloat(el.textContent.replace("$", "").replace(".", "")) || 0;
                     total += subtotal;
                 });
                 return total;
@@ -255,9 +260,8 @@
             function formatNumber(num) {
                 return new Intl.NumberFormat('en-EU', { minimumFractionDigits: 0 }).format(num);
             }
-            subtotalDisplay.textContent = `$${formatNumber(Math.round(totalBase))}`;
-            totalDisplay.textContent = `${formatNumber(Math.round(totalBase))}`;
-    
+            subtotalDisplay.textContent = `$${formatNumberWithDot(Math.round(totalBase))}`;
+            totalDisplay.textContent = `${formatNumberWithDot(Math.round(totalBase))}`;
             // Detectar cambios en la selección de la zona de envío
             document.getElementById('zona').addEventListener('change', (e) => {
             const selectedOption = e.target.options[e.target.selectedIndex];
@@ -266,16 +270,17 @@
             const totalDisplay = document.getElementById('total-display');
 
             // Actualizar el costo de envío mostrado en la tabla
-            shippingDisplay.textContent = `$${formatNumber(Math.round(shippingCost))}`;
+            shippingDisplay.textContent = `$${formatNumberWithDot(Math.round(shippingCost))}`;
 
             // Calcular el nuevo total sumando el costo del carrito y el costo de envío
-            let cartTotal = parseFloat(document.getElementById('cart-total').textContent.replace('$', '')) || 0;
+            let cartTotal = (parseFloat(document.getElementById('cart-total').textContent.replace('$', '')) || 0)+ shippingCost;
             let newTotal = cartTotal + shippingCost;
+            totalFinal=newTotal;
 
             // Actualizar el total mostrado en la tabla
-            subtotalDisplay.textContent = `$${formatNumber(Math.round(newTotal))}`;
+            subtotalDisplay.textContent = `$${formatNumberWithDot(Math.round(newTotal))}`;
 
-            totalDisplay.textContent = `${formatNumber(Math.round(newTotal))}`;
+            totalDisplay.textContent = `${formatNumberWithDot(Math.round(newTotal))}`;
         });
 
 
@@ -372,7 +377,7 @@
                         data-index="${index}" 
                         class="form-control form-control-sm quantity-input" 
                         style="width: 65px; text-align: center;">
-                    <span class="fw-bold ms-3">$${subtotal.toFixed(2)}</span>
+                    <span class="fw-bold ms-3">$${subtotal}</span>
                     <button class="btn btn-sm btn-danger remove-item" 
                         data-index="${index}" 
                         style="padding: 4px 8px; border-radius: 5px;">&times;</button>

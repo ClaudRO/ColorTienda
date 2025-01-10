@@ -39,6 +39,7 @@
     </div>
 </div>
 
+{% load custom_filters %}
 
 
 
@@ -59,7 +60,7 @@
 
                         <div class="card-body p-5">
                             <h6 class="card-title">{{ product.name}}</h6>
-                            <p class="card-text">${{ product.price|floatformat:0 |intcomma }}</p>
+                            <p class="card-text">${{ product.price|floatformat:0 |intcomma_dot  }}</p>
                             <button class="btn btn-outline-dark btn-sm add-to-cart" 
                                 data-id="{{ product.id }}" 
                                 data-name="{{ product.name }}" 

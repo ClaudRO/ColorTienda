@@ -1,0 +1,18 @@
+<div id="cart-sidebar" class="offcanvas offcanvas-end" tabindex="-1" aria-labelledby="cartLabel" style="width: 500px;">
+    <div class="offcanvas-header">
+        <h5 id="cartLabel">Carrito de Compras</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul id="cart-items" class="list-group mb-3">
+            <!-- Aquí se renderizarán los productos dinámicamente -->
+        </ul>
+        <div class="d-flex justify-content-between align-items-center">
+            <strong>Total:</strong>
+            <span id="cart-total" class="fw-bold">$0.00</span>
+        </div>
+        <form method="POST" action="/carrito/">
+            <button id="checkout-btn" type="button" class="btn btn-primary w-100 mt-3">Ir a Pagar</button>
+        </form>
+    </div>
+</div>

@@ -1,9 +1,12 @@
 from django import template
-
-
-
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 register = template.Library()
+
+@register.filter
+def intcomma_dot(value):
+    """Formatea números con separador de miles como punto."""
+    return intcomma(value).replace(",", ".")
 
 @register.filter
 def sum_total(cart_items, key):
