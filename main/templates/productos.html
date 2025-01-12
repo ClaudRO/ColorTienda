@@ -16,28 +16,8 @@
     <!-- Navbar -->
     {% include 'components/navbar.html' %}
     {% load humanize %}
-
-    <!-- Carrito de Compras -->
-    <div id="cart-sidebar" class="offcanvas offcanvas-end" style="width: 500px; height: 100%;" tabindex="-1"
-    aria-labelledby="cartLabel">
-    <div class="offcanvas-header">
-        <h5 id="cartLabel">Carrito de Compras</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        <ul id="cart-items" class="list-group mb-3">
-            <!-- Los productos añadidos al carrito se renderizan aquí dinámicamente -->
-        </ul>
-        <div class="d-flex justify-content-between align-items-center">
-            <strong>Total:</strong>
-            <span id="cart-total" class="fw-bold">$0.00</span>
-        </div>
-        <form method="POST" action="/carrito/">
-            {% csrf_token %}
-            <button id="checkout-btn" type="button" class="btn btn-primary w-100 mt-3">Ir a Pagar</button>
-        </form>
-    </div>
-</div>
+    {% include 'components/cart.html' %}
+    
 
 {% load custom_filters %}
 
@@ -126,214 +106,71 @@
       </div>
     </div>
   </div>
-  
+  <script src="{% static 'js/cart.js' %}"></script>
+  <script>
+    //Funcion para agregar pituras al carrito, estas requieren un codigo de un color en especifo ademas de la cantidad
 
+    document.querySelectorAll('.add-to-cart').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const category = button.dataset.category;
 
-    <script>
-        const cartItems = JSON.parse(sessionStorage.getItem('cart')) || [];
-        const cartItemsList = document.getElementById('cart-items');
-        const cartTotal = document.getElementById('cart-total');
+            if (category === 'pinturas') {
+                // Mostrar el modal de personalización de pinturas
+                const paintModal = new bootstrap.Modal(document.getElementById('paintModal'));
+                paintModal.show();
 
-        // Renderizar el carrito
-        const renderCart = () => {
-            cartItemsList.innerHTML = '';
-            let total = 0;
-
-            cartItemsList.addEventListener('change', (e) => {
-    if (e.target.classList.contains('quantity-input')) {
-        const index = e.target.dataset.index;
-        const item = cartItems[index];
-
-        if (item.volumen !== undefined) {
-            item.volumen = parseFloat(e.target.value); // Actualizar volumen
-        } else {
-            item.quantity = parseInt(e.target.value); // Actualizar cantidad
-        }
-        
-        renderCart(); 
-    }
-});
-
-        cartItemsList.addEventListener('click', (e) => {
-            if (e.target.classList.contains('remove-item')) {
-                const index = e.target.dataset.index;
-                cartItems.splice(index, 1);
-                renderCart();
-            }
-        });
-            cartItems.forEach((item, index) => {
-                const volume = item.volumen || 0; // Si no hay volumen, mostrar 0
-                const quantity = item.quantity || 0; // Si no hay cantidad, mostrar 0
-
-                // Determinar el subtotal basado en el tipo de producto
-                const isPaint = volume > 0; // Si hay volumen, asumimos que es pintura
-                const subtotal = isPaint ? item.price * volume : item.price * quantity;
-
-                const listItem = document.createElement('li');
-                listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
-
-                // Detalles del producto con campos obligatorios y condicionales
-                //la cantidad de el producto pintura siempre deberia ser 1, el volumen es lo que se utiliza para calcular el total
-                let productDetails = `
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center" style="gap: 10px;">
-                        <img src="${item.image}" style="width: 50px; height: 50px;" class="me-2">
-                        <div>
-                            <span>${item.name}</span>
-                            ${isPaint ? `<br><small class="text-muted">Cantidad: 1</small>` : ''}
-                        </div>
-                    </div>
-                    <div class="d-flex align-items-center" style="gap: 10px; margin-left:10px">
-                        <label for="input-${index}" class="me-2">${isPaint ? 'Volumen' : 'Cantidad'}:</label>
-                        <input type="number" id="input-${index}" value="${isPaint ? volume : quantity}" min="1" 
-                            data-index="${index}" 
-                            class="form-control form-control-sm quantity-input" 
-                            style="width: 65px; text-align: center;">
-                            <span class="fw-bold ms-3">$${Math.round(subtotal).toLocaleString()}</span>
-                        <button class="btn btn-sm btn-danger remove-item" 
-                            data-index="${index}" 
-                            style="padding: 4px 8px; border-radius: 5px;">&times;</button>
-                    </div>
-                </div>
-            `;
-
-                listItem.innerHTML = productDetails;
-                cartItemsList.appendChild(listItem);
-                total += subtotal; // Sumar al total general
-            });
-
-            cartTotal.textContent = `$${Math.round(total).toLocaleString()}`;
-            sessionStorage.setItem('cart', JSON.stringify(cartItems));
-        };
-        //boton para mostrar el carrito actual
-        document.getElementById('show-cart-btn').addEventListener('click', () => {
-            renderCart();  // Asegúrate de renderizar el carrito
-            const offcanvas = new bootstrap.Offcanvas(document.getElementById('cart-sidebar'));
-            offcanvas.show();
-        });
-
-
-
-        // Agregar al carrito (modificado)
-        document.querySelectorAll('.add-to-cart').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const category = button.dataset.category;
-
-                if (category === 'pinturas') {
-                    // Mostrar el modal de personalización de pinturas
-                    const paintModal = new bootstrap.Modal(document.getElementById('paintModal'));
-                    paintModal.show();
-
-                    // Guardar la información básica del producto en un dataset temporal
-                    document.getElementById('savePaint').dataset.id = button.dataset.id;
-                    document.getElementById('savePaint').dataset.name = button.dataset.name;
-                    document.getElementById('savePaint').dataset.price = button.dataset.price;
-                    document.getElementById('savePaint').dataset.image = button.dataset.image;
-                } else {
-                    // Agregar productos normales al carrito como siempre
-                    addToCart({
-                        id: button.dataset.id,
-                        name: button.dataset.name,
-                        price: parseFloat(button.dataset.price),
-                        image: button.dataset.image,
-                        quantity: 1
-                    });
-                }
-            });
-        });
-
-        // Manejar el guardado de una pintura personalizada
-        document.getElementById('savePaint').addEventListener('click', () => {
-            const id = document.getElementById('savePaint').dataset.id;
-            const name = document.getElementById('savePaint').dataset.name;
-            const basePrice = parseFloat(document.getElementById('savePaint').dataset.price);
-            const image = document.getElementById('savePaint').dataset.image;
-            const volumen = parseFloat(document.getElementById('paintQuantity').value); // Volumen en litros
-            const colorCode = document.getElementById('paintColorCode').value;
-
-            if (!volumen || !colorCode) {
-                alert('Por favor, completa todos los campos.');
-                return;
-            }
-
-            addToCart({
-                id,
-                name: `${name} (${colorCode})`,
-                price: basePrice, // El precio base se mantiene igual
-                image,
-                quantity: 1, // La cantidad para pinturas siempre será 1 (unidad personalizada)
-                volumen, // Guardamos el volumen como campo separado
-                colorCode
-            });
-
-            // Cerrar el modal
-            const paintModal = bootstrap.Modal.getInstance(document.getElementById('paintModal'));
-            paintModal.hide();
-        });
-
-// Función para agregar productos al carrito (centralizar lógica)
-function addToCart(product) {
-    const existingProduct = cartItems.find(item => item.id === product.id && item.colorCode === product.colorCode);
-
-    if (existingProduct) {
-        if (product.volumen) {
-            existingProduct.volumen += product.volumen; // Sumar volumen si es pintura
-        } else {
-            existingProduct.quantity += product.quantity; // Sumar cantidad si es producto normal
-        }
-    } else {
-        cartItems.push(product);
-    }
-
-    //funciones para modificar cantidades y eliminar productos del carrito
-    
-    renderCart();
-    const offcanvas = new bootstrap.Offcanvas(document.getElementById('cart-sidebar'));
-    offcanvas.show();
-}
-document.getElementById('checkout-btn').addEventListener('click', () => {
-            fetch('/carrito/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify(cartItems)
-            })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.href = '/carrito/';
-                    } else {
-                        console.error('Error al enviar los datos del carrito.');
-                    }
-                });
-        });
-
-    </script>
-    <script>
-        document.querySelectorAll('.btn-add-cart').forEach(button => {
-            button.addEventListener('click', function () {
-                const product = {
-                    id: this.dataset.id,
-                    name: this.dataset.name,
-                    price: parseFloat(this.dataset.price),
+                // Guardar la información básica del producto en un dataset temporal
+                document.getElementById('savePaint').dataset.id = button.dataset.id;
+                document.getElementById('savePaint').dataset.name = button.dataset.name;
+                document.getElementById('savePaint').dataset.price = button.dataset.price;
+                document.getElementById('savePaint').dataset.image = button.dataset.image;
+            } else {
+                // Agregar productos normales al carrito como siempre
+                addToCart({
+                    id: button.dataset.id,
+                    name: button.dataset.name,
+                    price: parseFloat(button.dataset.price),
+                    image: button.dataset.image,
                     quantity: 1
-                };
-
-                fetch("{% url 'carrito' %}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify(product)
-                })
-                .then(response => response.json())
-                .then(data => alert(data.message))
-                .catch(error => console.error('Error:', error));
-            });
+                });
+            }
         });
-    </script>
+    });
+
+    //funcion para guardar los datos de la pintura, complementa la funcion anterior para agregar pinturas
+
+    document.getElementById('savePaint').addEventListener('click', () => {
+        const id = document.getElementById('savePaint').dataset.id;
+        const name = document.getElementById('savePaint').dataset.name;
+        const basePrice = parseFloat(document.getElementById('savePaint').dataset.price);
+        const image = document.getElementById('savePaint').dataset.image;
+        const volumen = parseFloat(document.getElementById('paintQuantity').value); // Volumen en litros
+        const colorCode = document.getElementById('paintColorCode').value;
+
+        if (!volumen || !colorCode) {
+            alert('Por favor, completa todos los campos.');
+            return;
+        }
+
+        addToCart({
+            id,
+            name: `${name} (${colorCode})`,
+            price: basePrice, // El precio base se mantiene igual
+            image,
+            quantity: 1, // La cantidad para pinturas siempre será 1 (unidad personalizada)
+            volumen, // Guardamos el volumen como campo separado
+            colorCode
+        });
+
+        // Cerrar el modal
+        const paintModal = bootstrap.Modal.getInstance(document.getElementById('paintModal'));
+        paintModal.hide();
+    });
+
+  </script>
+
+
+
 
 
 

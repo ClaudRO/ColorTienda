@@ -355,27 +355,21 @@ def carrito(request):
             for item in carrito_data:
                 item['quantity'] = int(item.get('quantity', 1))
                 item['price'] = float(item.get('price', 0))
+                item['volumen'] = float(item.get('volumen', 0)) if 'volumen' in item else 0
 
-                # Manejar el código de color si está presente
                 if 'colorCode' in item:
                     item['colorCode'] = item['colorCode'].strip().upper()
 
-                # Validar y manejar el volumen (si aplica)
-                if 'volumen' in item:
-                    try:
-                        item['volumen'] = float(item['volumen'])
-                        if item['volumen'] <= 0:
-                            return JsonResponse({'error': 'El volumen debe ser mayor que 0.'}, status=400)
-                    except ValueError:
-                        return JsonResponse({'error': 'Volumen inválido.'}, status=400)
+                if item['volumen'] < 0 or item['quantity'] < 1:
+                    return JsonResponse({'error': 'Cantidad o volumen inválido.'}, status=400)
 
-            # Almacenar los datos procesados en la sesión
+            # Guardar en la sesión
             request.session['carrito'] = carrito_data
             return JsonResponse({'message': 'Carrito actualizado correctamente'})
         except (ValueError, KeyError) as e:
             return JsonResponse({'error': f'Datos inválidos: {str(e)}'}, status=400)
 
-    # Obtener datos del carrito (si no es POST)
+    # Renderizar el carrito si es GET
     cart_data = request.session.get('carrito', [])
     return render(request, 'carrito.html', {'cart_items': cart_data})
 
