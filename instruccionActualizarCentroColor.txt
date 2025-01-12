@@ -1,0 +1,103 @@
+Instrucciones para actualizar la pagina de centrocolor
+
+Básicamente para esto actualmente lo que se hace es que se accede la instancia de lightsail con ubuntu/Linux donde esta levantada la pagina, y se borra la carpeta antigua donde esta el proyecto para clonar nuevamente esta la carpeta del repositorio de GitHub donde se subieron las actualizaciones/cambios, crear un ambiente virtual e instalar las dependencias del requeriments.txt y también gunicorn, luego ejecutar el proyecto nuevamente para poder apreciar los cambios.
+
+consideración importante, tiene un tiempo limite de inactividad la instancia, por lo que si no interactuas con la consola por x tiempo no te dejara interactuar con esta y
+tendrás que volver a crear otra conexión con la instancia.
+
+Estos son los comandos en orden y una breve explicación:
+
+1.ps aux | grep gunicorn
+
+Para detener correctamente la pagina primero ponemos este comando, este nos permite saber el id de los procesos asociados a gunicorn, estos están asociados
+a la ejecución de la pagina por lo que hay que pararlos, por lo general muestra 5 procesos 4 de gunicorn y uno de la respectiva consulta que estamos haciendo por lo que hay que
+finalizar los 4 primeros
+	1.2 sudo kill idproceso
+	por ejemplo este es un resultado común del comando para ver los ids, el id de los procesos varia.
+
+	     esta es la columna de los ids
+        ---------->     <----------------
+	ubuntu     22836  0.0  1.7  31212 16164 ?        S    Jan10   0:29 /home/ubuntu/ColorTienda
+	/venv/bin/python3 /home/ubuntu/ColorTienda/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:808
+	0 centro_color.wsgi:application
+	ubuntu     22887  0.0  4.7  70088 44556 ?        S    Jan10   0:05 /home/ubuntu/ColorTienda
+	/venv/bin/python3 /home/ubuntu/ColorTienda/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:808
+	0 centro_color.wsgi:application
+	ubuntu     22888  0.0  4.8  69016 45300 ?        S    Jan10   0:06 /home/ubuntu/ColorTienda
+	/venv/bin/python3 /home/ubuntu/ColorTienda/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:808
+	0 centro_color.wsgi:application
+	ubuntu     24949  0.0  4.6  68756 43676 ?        S    Jan11   0:04 /home/ubuntu/ColorTienda
+	/venv/bin/python3 /home/ubuntu/ColorTienda/venv/bin/gunicorn --workers 3 --bind 0.0.0.0:808
+	0 centro_color.wsgi:application
+	ubuntu     28669  0.0  0.2   7008  2304 pts/2    S+   22:40   0:00 grep --color=auto gunico
+	rn
+	
+	los ids son un poco difícil de ver pero son los que están justo al lado de donde dice Ubuntu, los valores que nos interesan seria los 4 primeros ids en este caso serian 	los ids 22836 22887 22888 24949 y el comando para pararlos quedaria asi sudo kill 22836 22887 22888 24949,	
+
+2.rm -r /home/ubuntu/ColorTienda/
+
+Este comando elimina la carpeta del proyecto y sus dependencias, tienes que confirmar 2 veces digitando "y" y presionando enter
+
+3.git clone https://github.com/ClaudRO/ColorTienda.git
+
+comando para clonar el repositorio el nombre ColorTienda es importante porque los otros comandos asumen que asi se llama la carpeta, no estoy seguro pero creo que también
+se menciona este en los archivos de configuración de la instancia
+
+4.nano /home/ubuntu/ColorTienda/centro_color/settings.py
+
+Cuando se clona la carpeta es necesario modificar el archivo settings.py en la parte donde se configura las credenciales de la bd, hay que cambiar el nombre de usuario,
+este cuando se prueba en local se llama "root" pero en la instancia lo llame "usuario_django", por lo que se reemplaza ese valor, luego
+	4.1. Ctrl + o
+	
+	para guardar los cambios del archivo modificado
+
+	4.2 Enter
+	
+	para confirmar
+
+	4.2 Ctrl + x 
+	para cerrar el editor de texto
+
+
+5.cd ColorTienda
+
+comando para abrir la carpeta recién clonada
+
+6.python3 -m venv venv
+
+comando para crear un ambiente virtual
+
+7.source venv/bin/activate
+
+comando para entrar en el ambiente virtual que donde deben instalarse las dependencias
+
+8.pip install -r requirements.txt
+
+comando para instalar las dependencias
+
+9.pip install gunicorn
+
+se instala gunicorn que es con lo que se ejecuta de forma constante el proyecto(también podría estar definido en el requeriments.txt para saltarse este paso)
+
+10.gunicorn --workers 3 --bind 0.0.0.0:8080 centro_color.wsgi:application
+
+comando para volver a levantar el proyecto, la aplicación esta configurada para correr en el puerto 8080
+
+
+Otros comandos útiles comúnmente utilizados
+
+deactivate
+
+para salir del ambiente virtual
+
+ls /etc/nginx/sites-available/
+
+se utiliza nginx para la configuración de la instancia con ese listas los archivos actuales
+
+Si es que cambian de instancia también hará falta volver a instalar en la carpeta raiza de la instancia este comando
+
+sudo apt install pkg-config libmysqlclient-dev python3-dev build-essen
+
+
+
+credeciales: cuenta admin3 contra adminadmin
