@@ -79,7 +79,7 @@ comando para instalar las dependencias
 
 se instala gunicorn que es con lo que se ejecuta de forma constante el proyecto(también podría estar definido en el requeriments.txt para saltarse este paso)
 
-10.gunicorn --workers 3 --bind 0.0.0.0:8080 centro_color.wsgi:application
+10.gunicorn --workers 1 --bind 0.0.0.0:8080 centro_color.wsgi:application
 
 comando para volver a levantar el proyecto, la aplicación esta configurada para correr en el puerto 8080
 
